@@ -1,0 +1,48 @@
+# Replica count — how many pods to run
+replicaCount: 2
+
+# Image configuration
+image:
+  repository: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/devops-platform/app
+  tag: latest          # overridden at deploy time with the git SHA
+  pullPolicy: Always   # Always re-pull. Use IfNotPresent in dev.
+
+# Service — how the app is exposed inside the cluster
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080     # the port your app listens on inside the container
+
+# Ingress — external traffic routing
+ingress:
+  enabled: true
+  className: nginx     # which ingress controller to use
+  host: app.devops-platform.com
+  tls: false           # set true in prod with cert-manager
+
+# Resource limits — CPU and memory per pod
+resources:
+  requests:
+    cpu: 100m          # 100 millicores = 0.1 CPU
+    memory: 128Mi
+  limits:
+    cpu: 500m          # never use more than 0.5 CPU
+    memory: 512Mi
+
+# HPA — autoscaling config
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 8
+  targetCPUUtilizationPercentage: 70
+
+# Environment variables injected into the container
+env:
+  NODE_ENV: production
+  PORT: "8080"
+  APP_VERSION: "1.0.0"
+
+# Node selection — run on specific node types (optional)
+nodeSelector: {}
+tolerations: []
+affinity: {}
